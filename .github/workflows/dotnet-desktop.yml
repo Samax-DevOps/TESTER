@@ -43,7 +43,7 @@ jobs:
 
     - name: Stop IIS app pool or website
       run: |
-        Import-Module WebAdministration
+        Import-Module WebAdministration -SkipEditionCheck
         Stop-WebAppPool -Name "ErgotronChatbot"
         Stop-WebSite -Name "ErgotronChatbot"
         Start-Sleep -Seconds 10  # Wait for 10 seconds to ensure IIS stops completely
