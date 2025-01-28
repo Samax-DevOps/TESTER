@@ -32,24 +32,28 @@ jobs:
       run: |
         echo "Publishing the project..."
         dotnet publish --configuration Release --output .\publish
-
-    # Stop IIS app pool or website using Windows PowerShell
+        
     - name: Stop IIS app pool or website
       run: |
-        Import-Module WebAdministration 
-        Stop-WebAppPool -Name "ErgotronChatbot"
-        Stop-WebSite -Name "ErgotronChatbot"
-        Start-Sleep -Seconds 10  # Wait for 10 seconds to ensure IIS stops completely
+        Start-Process powershell -ArgumentList "Import-Module WebAdministration; Stop-WebAppPool -Name 'ErgotronChatbot'; Stop-WebSite -Name 'ErgotronChatbot'; Start-Sleep -Seconds 10" -Verb runAs
+
+    # Stop IIS app pool or website using Windows PowerShell
+    # - name: Stop IIS app pool or website
+    #   run: |
+    #     Import-Module WebAdministration 
+    #     Stop-WebAppPool -Name "ErgotronChatbot"
+    #     Stop-WebSite -Name "ErgotronChatbot"
+    #     Start-Sleep -Seconds 10  # Wait for 10 seconds to ensure IIS stops completely
         
 
-    - name: Copy published files
-      run: |
-        $destinationPath = 'C:\Sites\ErgotronChatbot'
-        Copy-Item -Path .\publish\* -Destination $destinationPath -Recurse -Force
+    # - name: Copy published files
+    #   run: |
+    #     $destinationPath = 'C:\Sites\ErgotronChatbot'
+    #     Copy-Item -Path .\publish\* -Destination $destinationPath -Recurse -Force
 
-    # Start IIS app pool or website using Windows PowerShell
-    - name: Start IIS app pool or website
-      run: |
-        Start-WebAppPool -Name "ErgotronChatbot"
-        Start-WebSite -Name "ErgotronChatbot"
+    # # Start IIS app pool or website using Windows PowerShell
+    # - name: Start IIS app pool or website
+    #   run: |
+    #     Start-WebAppPool -Name "ErgotronChatbot"
+    #     Start-WebSite -Name "ErgotronChatbot"
         
