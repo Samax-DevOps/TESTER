@@ -9,7 +9,6 @@ on:
 jobs:
 
   build:
-
     strategy:
       matrix:
         configuration: [Debug, Release]
@@ -43,4 +42,28 @@ jobs:
       run: dotnet test
 
     - name: Publish Project
-      run: dotnet publish ErgotronChatbotApi/ErgotronChatbotApi.csproj --configuration Release --output .\publish
+      run: |
+        echo "Publishing the project..."
+        dotnet publish --configuration Release --output .\publish
+
+    # Add steps for IIS management (similar to your Bitbucket pipeline)
+    - name: Stop IIS Process or Application Pool
+      run: |
+        echo "Stopping IIS process or application pool..."
+        PowerShell -Command "Import-Module WebAdministration"
+        PowerShell -Command "Stop-WebAppPool -Name 'ErgotronChatbot'"
+        PowerShell -Command "Stop-WebSite -Name 'ErgotronChatbot'"
+        Start-Sleep -Seconds 10  # Wait for IIS to stop completely
+
+    - name: Copy Published Files to Target Directory
+      run: |
+        echo "Copying published files to the target directory..."
+        $destinationPath = 'C:\Sites\ErgotronChatbot'
+        if (-Not (Test-Path $destinationPath)) { New-Item -ItemType Directory -Force -Path $destinationPath }
+        Copy-Item -Path .\publish\* -Destination $destinationPath -Recurse -Force
+
+    - name: Start IIS Process or Application Pool
+      run: |
+        echo "Starting IIS process or application pool..."
+        PowerShell -Command "Start-WebAppPool -Name 'ErgotronChatbot'"
+        PowerShell -Command "Start-WebSite -Name 'ErgotronChatbot'"
