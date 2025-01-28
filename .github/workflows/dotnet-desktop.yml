@@ -8,9 +8,6 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        configuration: [Debug, Release]
     runs-on: windows-latest
 
     steps:
@@ -44,33 +41,19 @@ jobs:
         echo "Publishing the project..."
         dotnet publish --configuration Release --output .\publish
 
-    # Install IIS and WebAdministration module
-    - name: Install IIS and WebAdministration Module
+    - name: Stop IIS app pool or website
       run: |
-        Install-WindowsFeature -Name Web-Server, Web-WebServer, Web-App-Dev, Web-Asp-Net45, Web-Management-Tools
         Import-Module WebAdministration
+        Stop-WebAppPool -Name "ErgotronChatbot"
+        Stop-WebSite -Name "ErgotronChatbot"
+        Start-Sleep -Seconds 10  # Wait for 10 seconds to ensure IIS stops completely
 
-    - name: Stop IIS Process or Application Pool
+    - name: Copy published files
       run: |
-        echo "Stopping IIS process or application pool..."
-        PowerShell -Command "Stop-WebAppPool -Name 'ErgotronChatbot' -ErrorAction SilentlyContinue"
-        PowerShell -Command "Stop-WebSite -Name 'ErgotronChatbot' -ErrorAction SilentlyContinue"
-        Start-Sleep -Seconds 10  # Wait for IIS to stop completely
+        $destinationPath = 'C:\Sites\ErgotronChatbot'
+        Copy-Item -Path .\publish\* -Destination $destinationPath -Recurse -Force
 
-    - name: Copy Published Files to Target Directory
+    - name: Start IIS app pool or website
       run: |
-        echo "Copying published files to the target directory..."
-        Copy-Item -Path .\publish\* -Destination C:\Sites\ErgotronChatbot -Recurse -Force
-
-    - name: Start IIS Process or Application Pool
-      run: |
-        echo "Starting IIS process or application pool..."
-        PowerShell -Command "Start-WebAppPool -Name 'ErgotronChatbot'"
-        PowerShell -Command "Start-WebSite -Name 'ErgotronChatbot'"
-
-    # Upload the publish folder as an artifact
-    - name: Upload Published Files
-      uses: actions/upload-artifact@v3
-      with:
-        name: published-files
-        path: ./publish
+        Start-WebAppPool -Name "ErgotronChatbot"
+        Start-WebSite -Name "ErgotronChatbot"
