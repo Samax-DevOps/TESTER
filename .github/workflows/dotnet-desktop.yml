@@ -45,7 +45,7 @@ jobs:
     - name: Stop IIS app pool or website
       run: |
         powershell.exe -Command {
-          Import-Module WebAdministration -SkipEditionCheck
+          Import-Module WebAdministration 
           Stop-WebAppPool -Name "ErgotronChatbot"
           Stop-WebSite -Name "ErgotronChatbot"
           Start-Sleep -Seconds 10  # Wait for 10 seconds to ensure IIS stops completely
