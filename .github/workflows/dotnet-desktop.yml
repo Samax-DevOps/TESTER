@@ -35,7 +35,13 @@ jobs:
         
     - name: Stop IIS app pool or website
       run: |
-        Start-Process powershell -ArgumentList "Import-Module WebAdministration; Stop-WebAppPool -Name 'ErgotronChatbot'; Stop-WebSite -Name 'ErgotronChatbot'; Start-Sleep -Seconds 10" -Verb runAs
+        $script = {
+          Import-Module WebAdministration
+          Stop-WebAppPool -Name "ErgotronChatbot"
+          Stop-WebSite -Name "ErgotronChatbot"
+          Start-Sleep -Seconds 10
+        }
+        PowerShell -Command $script
 
     # Stop IIS app pool or website using Windows PowerShell
     # - name: Stop IIS app pool or website
